@@ -21,6 +21,25 @@ export interface AuthResponse {
   refreshToken: string;
 }
 
+// ── Income ────────────────────────────────────────────────────────────
+
+export interface IncomeEntry {
+  id: string;
+  user_id: string;
+  amount: number;
+  source: string;
+  month: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IncomeMonth {
+  entries: IncomeEntry[];
+  total: number;
+  month: string;
+}
+
 // ── Module 3 — Transactions ───────────────────────────────────────────
 
 export type TransactionType = "expense";
