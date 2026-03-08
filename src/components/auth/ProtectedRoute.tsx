@@ -1,36 +1,23 @@
-// src/components/auth/ProtectedRoute.tsx
-'use client';
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "../../lib/stores/auth.store";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/auth.store';
-
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
-
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading, refreshUser } = useAuthStore();
+export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const { isAuthenticated, fetchMe } = useAuthStore();
 
   useEffect(() => {
-    // Try to refresh user on mount
-    refreshUser();
-  }, []);
+    fetchMe();
+  }, [fetchMe]);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, isLoading, router]);
+    const token = localStorage.getItem("accessToken");
+    if (!token) router.replace("/login");
+  }, [isAuthenticated, router]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+  if (!token) return null;
 
-  return isAuthenticated ? <>{children}</> : null;
+  return <>{children}</>;
 }

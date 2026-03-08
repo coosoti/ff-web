@@ -1,165 +1,109 @@
-// src/app/(auth)/register/page.tsx
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useAuthStore } from '@/store/auth.store';
-import { RegisterData } from '@/types/auth';
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "../../../lib/stores/auth.store";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, isLoading, error, clearError } = useAuthStore();
-  const [formData, setFormData] = useState<RegisterData>({
-    email: '',
-    password: '',
-    name: '',
-    monthly_income: 0,
-    dependents: 0,
+  const { register, loading, error, clearError } = useAuthStore();
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    monthly_income: "",
+    dependents: "0",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target;
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: type === 'number' ? parseFloat(value) || 0 : value 
-    }));
-    if (error) clearError();
-  };
+  function set(field: string, value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    clearError();
     try {
-      await register(formData);
-      router.push('/dashboard');
-    } catch (error) {
-      // Error is handled in store
-    }
-  };
+      await register({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        monthly_income: Number(form.monthly_income),
+        dependents: Number(form.dependents),
+      });
+      router.push("/dashboard");
+    } catch {}
+  }
+
+  const income = Number(form.monthly_income);
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
-        <div>
-          <h1 className="text-center text-4xl font-bold text-gray-900 dark:text-white">
-            💰 Family Finance
-          </h1>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Create your account
-          </h2>
-        </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4 dark:bg-red-900/50">
-              <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4 py-10">
+      <div className="w-full max-w-sm">
+        <h1 className="text-2xl font-bold text-white mb-1">Create account</h1>
+        <p className="text-gray-400 text-sm mb-8">Set up Family Finance</p>
+
+        {error && (
+          <div className="mb-4 p-3 rounded-lg bg-red-900/40 border border-red-700 text-red-300 text-sm">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {[
+            { label: "Full name",     field: "name",     type: "text",   placeholder: "Jane Mwangi" },
+            { label: "Email",         field: "email",    type: "email",  placeholder: "you@example.com" },
+            { label: "Password",      field: "password", type: "password", placeholder: "Min 8 characters" },
+            { label: "Monthly income (KES)", field: "monthly_income", type: "number", placeholder: "150000" },
+            { label: "Dependents",    field: "dependents", type: "number", placeholder: "0" },
+          ].map(({ label, field, type, placeholder }) => (
+            <div key={field}>
+              <label className="block text-sm text-gray-300 mb-1">{label}</label>
+              <input
+                type={type}
+                value={form[field as keyof typeof form]}
+                onChange={(e) => set(field, e.target.value)}
+                required={field !== "dependents"}
+                min={type === "number" ? "0" : undefined}
+                placeholder={placeholder}
+                className="w-full px-4 py-3 rounded-xl bg-gray-900 border border-gray-700 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 text-sm"
+              />
+            </div>
+          ))}
+
+          {/* 50/30/20 preview — only shown once income is entered */}
+          {income > 0 && (
+            <div className="p-4 rounded-xl bg-gray-900 border border-gray-800 space-y-2">
+              <p className="text-xs text-gray-400 font-medium mb-2">Your starting budget</p>
+              {[
+                { label: "Needs (50%)",   color: "bg-blue-500",    amount: Math.round(income * 0.5) },
+                { label: "Wants (30%)",   color: "bg-purple-500",  amount: Math.round(income * 0.3) },
+                { label: "Savings (20%)", color: "bg-emerald-500", amount: Math.round(income * 0.2) },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center gap-2 text-xs">
+                  <div className={`w-2 h-2 rounded-full ${row.color}`} />
+                  <span className="text-gray-400 flex-1">{row.label}</span>
+                  <span className="text-gray-200 font-mono">KES {row.amount.toLocaleString()}</span>
+                </div>
+              ))}
             </div>
           )}
-          
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border-0 p-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-gray-800 dark:text-white dark:ring-gray-700"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border-0 p-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-gray-800 dark:text-white dark:ring-gray-700"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border-0 p-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-gray-800 dark:text-white dark:ring-gray-700"
-              />
-              <p className="mt-1 text-xs text-gray-500">Minimum 8 characters</p>
-            </div>
-            
-            <div>
-              <label htmlFor="monthly_income" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Monthly Income (KES)
-              </label>
-              <input
-                id="monthly_income"
-                name="monthly_income"
-                type="number"
-                required
-                min="0"
-                step="1000"
-                value={formData.monthly_income}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border-0 p-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-gray-800 dark:text-white dark:ring-gray-700"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="dependents" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Number of Dependents
-              </label>
-              <input
-                id="dependents"
-                name="dependents"
-                type="number"
-                min="0"
-                max="20"
-                value={formData.dependents}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border-0 p-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-gray-800 dark:text-white dark:ring-gray-700"
-              />
-            </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative flex w-full justify-center rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Creating account...' : 'Create account'}
-            </button>
-          </div>
-
-          <div className="text-center text-sm">
-            <Link 
-              href="/login" 
-              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
-            >
-              Already have an account? Sign in
-            </Link>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-semibold text-sm transition-colors disabled:opacity-50"
+          >
+            {loading ? "Creating account..." : "Create account"}
+          </button>
         </form>
+
+        <p className="mt-6 text-center text-sm text-gray-500">
+          Already have an account?{" "}
+          <Link href="/login" className="text-emerald-400 hover:text-emerald-300 font-medium">
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );
