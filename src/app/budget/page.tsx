@@ -91,24 +91,30 @@ function Budget() {
 
         {/* 50/30/20 Summary Cards */}
         {summary && (
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            {(["needs", "wants", "savings"] as BudgetType[]).map((type) => {
-              const t = summary.totals[type];
-              const pct = t.budgeted > 0 ? Math.min((t.actual / t.budgeted) * 100, 100) : 0;
-              return (
-                <div key={type} className={`p-3 rounded-xl border ${TYPE_BG[type]}`}>
-                  <p className="text-xs text-gray-400 capitalize mb-1">{type}</p>
-                  <p className="text-sm font-bold text-white">{Math.round(pct)}%</p>
-                  <div className="mt-2 h-1 rounded-full bg-gray-800">
-                    <div className={`h-1 rounded-full ${TYPE_COLORS[type]}`} style={{ width: `${pct}%` }} />
+          <>
+            <div className="p-3 rounded-xl bg-gray-900 border border-gray-800 mb-3 flex justify-between items-center">
+              <p className="text-xs text-gray-400">Total income this month</p>
+              <p className="text-sm font-bold text-emerald-400">KES {summary.total_income.toLocaleString()}</p>
+            </div>
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              {(["needs", "wants", "savings"] as BudgetType[]).map((type) => {
+                const t = summary.totals[type];
+                const pct = t.target > 0 ? Math.min((t.actual / t.target) * 100, 100) : 0;
+                return (
+                  <div key={type} className={`p-3 rounded-xl border ${TYPE_BG[type]}`}>
+                    <p className="text-xs text-gray-400 capitalize mb-1">{type}</p>
+                    <p className="text-sm font-bold text-white">{Math.round(pct)}%</p>
+                    <div className="mt-2 h-1 rounded-full bg-gray-800">
+                      <div className={`h-1 rounded-full ${TYPE_COLORS[type]}`} style={{ width: `${pct}%` }} />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {t.actual.toLocaleString()} / {t.target.toLocaleString()}
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {t.actual.toLocaleString()} / {t.budgeted.toLocaleString()}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </>
         )}
 
         {/* Recalculate income */}

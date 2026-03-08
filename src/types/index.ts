@@ -21,7 +21,26 @@ export interface AuthResponse {
   refreshToken: string;
 }
 
-// ── Module 2 — Budget ─────────────────────────────────────────────────
+// ── Module 3 — Transactions ───────────────────────────────────────────
+
+export type TransactionType = "expense";
+
+export interface Transaction {
+  id: string;
+  user_id: string;
+  category_id: string | null;
+  amount: number;
+  type: TransactionType;
+  date: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  category?: {
+    id: string;
+    name: string;
+    type: BudgetType;
+  };
+}
 
 export type BudgetType = "needs" | "wants" | "savings";
 
@@ -44,10 +63,11 @@ export interface BudgetCategoryWithActual extends BudgetCategory {
 
 export interface BudgetSummary {
   month: string;
+  total_income: number;
   categories: BudgetCategoryWithActual[];
   totals: {
-    needs:   { budgeted: number; actual: number };
-    wants:   { budgeted: number; actual: number };
-    savings: { budgeted: number; actual: number };
+    needs:   { budgeted: number; actual: number; target: number };
+    wants:   { budgeted: number; actual: number; target: number };
+    savings: { budgeted: number; actual: number; target: number };
   };
 }
