@@ -1,6 +1,5 @@
 // types/index.ts
-// Add types here module by module as we build each feature
-
+// ── Module 1 — Authentication ─────────────────────────────────────────
 export interface User {
   id: string;
   email: string;
@@ -19,6 +18,21 @@ export interface AuthResponse {
   user: User;
   accessToken: string;
   refreshToken: string;
+}
+
+// ── Module 4 — Savings Goals ──────────────────────────────────────────
+
+export interface SavingsGoal {
+  id: string;
+  user_id: string;
+  name: string;
+  target_amount: number;
+  current_amount: number;
+  target_date: string | null;
+  notes: string | null;
+  is_completed: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 // ── Income ────────────────────────────────────────────────────────────
