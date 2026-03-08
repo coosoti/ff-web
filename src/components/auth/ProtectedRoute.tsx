@@ -1,22 +1,27 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "../../lib/stores/auth.store";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated, fetchMe } = useAuthStore();
+  const { fetchMe } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    fetchMe();
-  }, [fetchMe]);
-
-  useEffect(() => {
+    setMounted(true);
     const token = localStorage.getItem("accessToken");
-    if (!token) router.replace("/login");
-  }, [isAuthenticated, router]);
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+    fetchMe();
+  }, []);
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+  // Don't render anything until client mounts — prevents hydration mismatch
+  if (!mounted) return null;
+
+  const token = localStorage.getItem("accessToken");
   if (!token) return null;
 
   return <>{children}</>;
