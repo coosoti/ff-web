@@ -1,5 +1,5 @@
 // types/index.ts
-// Add types here module by module as we build each feature
+// ── Module 1 — Authentication ─────────────────────────────────────────
 
 export interface User {
   id: string;
@@ -19,6 +19,97 @@ export interface AuthResponse {
   user: User;
   accessToken: string;
   refreshToken: string;
+}
+
+// ── Module 8 — Analytics ─────────────────────────────────────────────
+
+export interface TrendPoint {
+  month: string;
+  income: number;
+  expenses: number;
+  savings: number;
+}
+
+export interface IncomeExpenseTrend {
+  trend: TrendPoint[];
+  totalIncome: number;
+  totalExpenses: number;
+  avgSavings: number;
+}
+
+export interface SpendingCategory {
+  id: string;
+  name: string;
+  type: string;
+  total: number;
+  count: number;
+  pct: number;
+}
+
+export interface SpendingBreakdown {
+  categories: SpendingCategory[];
+  grandTotal: number;
+}
+
+export interface BudgetPerformanceItem {
+  id: string;
+  name: string;
+  type: string;
+  budgeted: number;
+  actual: number;
+  variance: number;
+  is_over: boolean;
+}
+
+export interface BudgetPerformance {
+  performance: BudgetPerformanceItem[];
+  summary: {
+    total_budgeted: number;
+    total_actual: number;
+    total_variance: number;
+    avg_monthly_income: number;
+    months: number;
+  };
+}
+
+export interface SavingsGoalProgress {
+  id: string;
+  name: string;
+  target: number;
+  current: number;
+  remaining: number;
+  pct: number;
+  is_completed: boolean;
+  target_date: string | null;
+  months_left: number | null;
+}
+
+export interface SavingsProgress {
+  goals: SavingsGoalProgress[];
+  summary: {
+    total_target: number;
+    total_current: number;
+    overall_pct: number;
+    completed: number;
+    active: number;
+  };
+}
+
+export interface NetworthSnapshot {
+  net_worth: number;
+  total_assets: number;
+  total_liabilities: number;
+  cash_trend: TrendPoint[];
+}
+
+export interface FullReport {
+  incomeExpense: IncomeExpenseTrend;
+  spending: SpendingBreakdown;
+  budget: BudgetPerformance;
+  savings: SavingsProgress;
+  networth: NetworthSnapshot;
+  generated_at: string;
+  months: number;
 }
 
 // ── Module 7 — Pension ────────────────────────────────────────────────
