@@ -1,5 +1,5 @@
 // types/index.ts
-// ── Module 1 — Authentication ─────────────────────────────────────────
+// Add types here module by module as we build each feature
 
 export interface User {
   id: string;
@@ -19,6 +19,49 @@ export interface AuthResponse {
   user: User;
   accessToken: string;
   refreshToken: string;
+}
+
+// ── Module 9 — Recurring Bills ───────────────────────────────────────
+
+export type BillCategory = "rent" | "utilities" | "subscription" | "insurance" | "loan" | "other";
+export type BillCycle    = "weekly" | "monthly" | "quarterly" | "annual";
+
+export interface Bill {
+  id: string;
+  user_id: string;
+  name: string;
+  amount: number;
+  category: BillCategory;
+  cycle: BillCycle;
+  due_day: number;
+  is_active: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  // enriched fields
+  current_cycle_key: string;
+  is_paid: boolean;
+  paid_at: string | null;
+  next_due_date: string;
+}
+
+export interface BillPayment {
+  id: string;
+  bill_id: string;
+  user_id: string;
+  cycle_key: string;
+  amount_paid: number;
+  paid_at: string;
+  notes: string | null;
+}
+
+export interface BillsSummary {
+  month: string;
+  total_due: number;
+  total_paid: number;
+  total_unpaid: number;
+  overdue_count: number;
+  bills: Bill[];
 }
 
 // ── Module 8 — Analytics ─────────────────────────────────────────────
